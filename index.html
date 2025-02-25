@@ -16,6 +16,11 @@
             width: 45%;
             height: 500px;
         }
+        #plot1, #plot2 {
+            width: 45%;
+            height: 400px;
+            display: none; /* Hide plots initially */
+        }
     </style>
 </head>
 <body>
@@ -27,8 +32,8 @@
     
     <h2>Time-Series Plots</h2>
     <div class="container">
-        <div id="plot1" style="width: 45%; height: 400px;"></div>
-        <div id="plot2" style="width: 45%; height: 400px;"></div>
+        <div id="plot1"></div>
+        <div id="plot2"></div>
     </div>
 
     <script>
@@ -60,22 +65,24 @@
 
         // Click event for the first map
         stationMarker1.on('click', function() {
+            document.getElementById('plot1').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot1', 1);
         });
 
         // Click event for the second map
         stationMarker2.on('click', function() {
+            document.getElementById('plot2').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot2', 2);
         });
 
         // Click event for the first epicenter
         epicenterMarker1.on('click', function() {
-            Plotly.purge('plot1');
+            document.getElementById('plot1').style.display = 'none';
         });
 
         // Click event for the second epicenter
         epicenterMarker2.on('click', function() {
-            Plotly.purge('plot2');
+            document.getElementById('plot2').style.display = 'none';
         });
 
         // Function to load and plot time-series data from a CSV file
