@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Earthquake Maps</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+        }
+        #map1, #map2 {
+            width: 45%;
+            height: 500px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Earthquake Epicenter & Station Maps</h2>
+    <div class="container">
+        <div id="map1"></div>
+        <div id="map2"></div>
+    </div>
+    
+    <h2>Time-Series Plots</h2>
+    <div class="container">
+        <div id="plot1" style="width: 45%; height: 400px;"></div>
+        <div id="plot2" style="width: 45%; height: 400px;"></div>
+    </div>
+
+    <script>
+        // Coordinates
+        const epicenter1 = { lat: -6.9, lon: 147.4, name: "Epicenter 1" };
+        const station1 = { lat: -6.7155, lon: 146.9999, name: "Station 1" };
+        const epicenter2 = { lat: -7.2, lon: 148.1, name: "Epicenter 2" };
+        const station2 = { lat: -6.9000, lon: 147.5000, name: "Station 2" };
+
+        // Initialize the first map
+        var map1 = L.map('map1').setView([epicenter1.lat, epicenter1.lon], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map1);
+
+        // Add markers for the first map
+        L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
+        var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
+
+        // Initialize the second map
+        var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map2);
+
+        // Add markers for the second map
+        L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
+        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
+
+        // Click event for the first map
+        stationMarker1.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot1', 1);
+        });
+
+        // Click event for the second map
+        stationMarker2.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 2);
+        });
+
+        // Function to load and plot time-series data from a CSV file
+        function loadTimeSeriesData(file, plotId, column) {
+            fetch(file)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").map(row => row.split(","));
+                    let x = rows.map(row => row[0]); // Assuming first column is time
+                    let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 2 Station 2
+                    
+                    console.log('Time data:', x);
+                    console.log('Velocity data:', y);
+
+                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
+                    const layout = { title: 'Corrected Time-Series Data' };
+                    
+                    Plotly.newPlot(plotId, [trace], layout);
+                })
+                .catch(error => console.error('Error loading time-series data:', error));
+        }
+    </script>
+</body>
+</html>
