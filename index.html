@@ -45,7 +45,7 @@
         }).addTo(map1);
 
         // Add markers for the first map
-        L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
+        var epicenterMarker1 = L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
         var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
 
         // Initialize the second map
@@ -55,7 +55,7 @@
         }).addTo(map2);
 
         // Add markers for the second map
-        L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
+        var epicenterMarker2 = L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
         var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
 
         // Click event for the first map
@@ -66,6 +66,16 @@
         // Click event for the second map
         stationMarker2.on('click', function() {
             loadTimeSeriesData('timeseries.csv', 'plot2', 2);
+        });
+
+        // Click event for the first epicenter
+        epicenterMarker1.on('click', function() {
+            Plotly.purge('plot1');
+        });
+
+        // Click event for the second epicenter
+        epicenterMarker2.on('click', function() {
+            Plotly.purge('plot2');
         });
 
         // Function to load and plot time-series data from a CSV file
