@@ -48,29 +48,29 @@ def get_station_coords(client_id, network, station, starttime, endtime):
 ot_eve1 = UTCDateTime("2025-02-22 14:16:16")- 1*60
 ot_eve2 = UTCDateTime("2025-02-23 01:24:23")- 1*60
 
-# # Fetch waveforms
-# st1_eve1 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve1, ot_eve1 + 5 * 60)
-# st2_eve1 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve1, ot_eve1 + 5* 60)
+# Fetch waveforms
+st1_eve1 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve1, ot_eve1 + 5 * 60)
+st2_eve1 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve1, ot_eve1 + 5* 60)
 
-# st1_eve2 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
-# st2_eve2 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
+st1_eve2 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
+st2_eve2 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
 
-# # Process & Trim Waveforms
-# st1_eve1_processed = process_wf(st1_eve1.copy())
-# st2_eve1_processed = process_wf(st2_eve1.copy())
+# Process & Trim Waveforms
+st1_eve1_processed = process_wf(st1_eve1.copy())
+st2_eve1_processed = process_wf(st2_eve1.copy())
 
-# st1_eve2_processed = process_wf(st1_eve2.copy())
-# st2_eve2_processed = process_wf(st2_eve2.copy())
+st1_eve2_processed = process_wf(st1_eve2.copy())
+st2_eve2_processed = process_wf(st2_eve2.copy())
 
-# #
-# df = pd.DataFrame()
-# df["time"] = st1_eve1_processed[0].times("relative")
-# df["event1_station1"] = st1_eve1_processed[0].data
-# df["event1_station2"] = st2_eve1_processed[0].data
-# df["event2_station1"] = st1_eve2_processed[0].data
-# df["event2_station2"] = st2_eve2_processed[0].data
+#
+df = pd.DataFrame()
+df["time"] = st1_eve1_processed[0].times("relative")
+df["event1_station1"] = st1_eve1_processed[0].data
+df["event1_station2"] = st2_eve1_processed[0].data
+df["event2_station1"] = st1_eve2_processed[0].data
+df["event2_station2"] = st2_eve2_processed[0].data
 
-# df.to_csv("timeseries.csv")
+df.to_csv("timeseries.csv", index=False)
 
 
 # table
