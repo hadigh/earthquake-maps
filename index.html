@@ -101,10 +101,16 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
                     let x = rows.map(row => row[0]); // First column is time
-                    let y = rows.map(row => row[column]); // Column for respective station data
-                    
+                    let y = rows.map(row => parseFloat(row[column])); // Convert column to float
+
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
+
+                    // Check if the y array contains valid numbers
+                    if (y.some(isNaN)) {
+                        console.error('Invalid data found in y array:', y);
+                        return;
+                    }
 
                     // Find the maximum value and its index
                     let maxIndex = y.indexOf(Math.max(...y));
