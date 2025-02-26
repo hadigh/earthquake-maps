@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
-import matplotlib.patches as patches
 from obspy import UTCDateTime
 from obspy.clients.fdsn import Client
-from matplotlib.ticker import ScalarFormatter
+import pandas as pd
+
 
 # Function to fetch waveform
 def get_wf(client_id, network, station, channel, starttime, endtime):
@@ -23,88 +23,82 @@ def get_wf(client_id, network, station, channel, starttime, endtime):
     return st
 
 # Function to process waveform (remove response, trim, resample)
-def process_wf(st, trim_starttime, trim_endtime, resample=None):
+def process_wf(st, fhpc=0.1, flpc=25):
     if not st:
         return st
-    pre_filt = [0.001, 0.005, 35, 50]
+    st.detrend()
+    pre_filt = [0.005, 0.01, 35, 50]
     st.remove_response(pre_filt=pre_filt)
-    if resample:
-        st.resample(resample)
-    st.trim(starttime=trim_starttime, endtime=trim_endtime)
+    st.filter("bandpass", freqmin=fhpc, freqmax=flpc, zerophase=True)
+    st.detrend('linear')
+    st.detrend('demean')
+    st.trim(starttime= st[0].stats.starttime + 30, endtime=st[0].stats.endtime - 60)
+    st.detrend('linear')
+    st.detrend('demean')
     return st
 
+def get_station_coords(client_id, network, station, starttime, endtime):
+    client = Client(client_id)
+    inv = client.get_stations(network=network,station=station,starttime=starttime, endtime=endtime)
+    sta_lat = inv[0][0].latitude
+    sta_lon = inv[0][0].longitude
+    return sta_lat, sta_lon
+
 # Define event arrival times
-p_arrival_eve1 = UTCDateTime("2018-05-09 07:58:25")
-p_arrival_eve2 = UTCDateTime("2018-05-09 08:06:26.3")
+ot_eve1 = UTCDateTime("2025-02-22 14:16:16")- 1*60
+ot_eve2 = UTCDateTime("2025-02-23 01:24:23")- 1*60
 
-# Fetch waveforms
-st_au = get_wf("IRIS", "AU", "RABL", "BHZ", p_arrival_eve1 - 3 * 60, p_arrival_eve1 + 10 * 60)
-st_am = get_wf("RASPISHAKE", "AM", "R67E0", "EHZ", p_arrival_eve1 - 3 * 60, p_arrival_eve1 + 10 * 60)
+# # Fetch waveforms
+# st1_eve1 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve1, ot_eve1 + 5 * 60)
+# st2_eve1 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve1, ot_eve1 + 5* 60)
 
-# Process & Trim Waveforms
-st_au_trimmed1 = process_wf(st_au.copy(), p_arrival_eve1 - 2, p_arrival_eve1 + 120)
-st_am_trimmed1 = process_wf(st_am.copy(), p_arrival_eve1 - 2, p_arrival_eve1 + 120)
+# st1_eve2 = get_wf("RASPISHAKE", "AM", "R9928", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
+# st2_eve2 = get_wf("RASPISHAKE", "AM", "R1458", "EHZ", ot_eve2, ot_eve2 + 5 * 60)
 
-st_au_trimmed2 = process_wf(st_au.copy(), p_arrival_eve2 - 2, p_arrival_eve2 + 120)
-st_am_trimmed2 = process_wf(st_am.copy(), p_arrival_eve2 - 2, p_arrival_eve2 + 120)
+# # Process & Trim Waveforms
+# st1_eve1_processed = process_wf(st1_eve1.copy())
+# st2_eve1_processed = process_wf(st2_eve1.copy())
 
-# Create 3x1 figure
-fig, axes = plt.subplots(3, 1, figsize=(10, 10), sharex=False)
+# st1_eve2_processed = process_wf(st1_eve2.copy())
+# st2_eve2_processed = process_wf(st2_eve2.copy())
 
-# Plot full AU waveform on top subplot
-if st_au:
-    time_full = st_am[0].times("relative")
-    axes[0].plot(time_full, st_am[0].data, color='black', label="AU - RABL (BHZ)")
-    axes[0].set_title("Original RS Waveform with Event Windows")
-    axes[0].set_ylabel("Amplitude (counts)")
-    
+# #
+# df = pd.DataFrame()
+# df["time"] = st1_eve1_processed[0].times("relative")
+# df["event1_station1"] = st1_eve1_processed[0].data
+# df["event1_station2"] = st2_eve1_processed[0].data
+# df["event2_station1"] = st1_eve2_processed[0].data
+# df["event2_station2"] = st2_eve2_processed[0].data
 
-    # Highlight event windows
-    event1_start = (p_arrival_eve1 - 2) - (p_arrival_eve1 - 3 * 60)
-    event1_width = (p_arrival_eve1 + 120) - (p_arrival_eve1 - 2)
-    
-    event2_start = (p_arrival_eve2 - 2) - (p_arrival_eve1 - 3 * 60)
-    event2_width = (p_arrival_eve2 + 120) - (p_arrival_eve2 - 2)
+# df.to_csv("timeseries.csv")
 
-    ylim = axes[0].get_ylim()
-    box_height = ylim[1] - ylim[0]
 
-    rect1 = patches.Rectangle((event1_start, ylim[0]), event1_width, box_height, linewidth=2, edgecolor='red', facecolor='none', label="Event 1")
-    rect2 = patches.Rectangle((event2_start, ylim[0]), event2_width, box_height, linewidth=2, edgecolor='blue', facecolor='none', label="Event 2")
+# table
+sta1_lat, sta1_lon = get_station_coords("RASPISHAKE", "AM", "R9928", ot_eve2, ot_eve2 + 1 )
+print(sta1_lat)
+print(sta1_lon)
 
-    axes[0].add_patch(rect1)
-    axes[0].add_patch(rect2)
-    axes[0].legend()
-    axes[0].set_xticklabels([])
-    axes[0].yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-    axes[0].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+sta2_lat, sta2_lon = get_station_coords("RASPISHAKE", "AM", "R1458", ot_eve2, ot_eve2 + 1 )
+print(sta2_lat)
+print(sta2_lon)
 
-# Plot trimmed waveforms for Event 1 (AU and AM)
-if st_au_trimmed1 and st_am_trimmed1:
-    axes[1].plot(st_au_trimmed1[0].times("relative"), st_au_trimmed1[0].data, color='red', label="AU - RABL (BHZ)")
-    axes[1].plot(st_am_trimmed1[0].times("relative"), st_am_trimmed1[0].data, color='blue', label="RS - R67E0 (EHZ)", linestyle="dashed")
-    axes[1].set_title(f"Trimmed Waveform Comparison (Event 1: {p_arrival_eve1})")
-    axes[1].set_ylabel("Amplitude (m/s)")
-    axes[1].legend()
-    axes[1].set_xticklabels([])
-    axes[1].yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-    axes[1].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+# # Create 3x1 figure
+# fig, axes = plt.subplots(2, 2, figsize=(10, 10), sharex=False)
 
-# Plot trimmed waveforms for Event 2 (AU and AM)
-if st_au_trimmed2 and st_am_trimmed2:
-    axes[2].plot(st_au_trimmed2[0].times("relative"), st_au_trimmed2[0].data, color='red', label="AU - RABL (BHZ)")
-    axes[2].plot(st_am_trimmed2[0].times("relative"), st_am_trimmed2[0].data, color='blue', label="RS - R67E0 (EHZ)", linestyle="dashed")
-    axes[2].set_title(f"Trimmed Waveform Comparison (Event 2: {p_arrival_eve2})")
-    axes[2].set_xlabel("Time (s)")
-    axes[2].set_ylabel("Amplitude (m/s)")
-    axes[2].legend()
-    axes[2].set_xlim(0,120)
-    axes[2].set_xticklabels([])
-    axes[2].yaxis.set_major_formatter(ScalarFormatter(useMathText=True))
-    axes[2].ticklabel_format(style='sci', axis='y', scilimits=(0,0))
+# # Plot full AU waveform on top subplot
+# time_full = st1_eve1_processed[0].times("relative")
+# axes[0,0].plot(time_full, st1_eve1_processed[0].data, color='black', label="st1-eve1")
+# axes[0,0].set_ylabel("Velocity (m/s)")
 
-# Adjust layout and show plot
-plt.tight_layout()
+# axes[1,0].plot(time_full, st2_eve1_processed[0].data, color='black', label="st2-eve1")
+# axes[1,0].set_ylabel("Velocity (m/s)")
 
-plt.savefig("../outputs/waveform_similarity.png", dpi=600, bbox_inches="tight")
-plt.show()
+# axes[0,1].plot(time_full, st1_eve2_processed[0].data, color='black', label="st1-eve2")
+# axes[0,1].set_ylabel("Velocity (m/s)")
+
+# axes[1,1].plot(time_full, st2_eve2_processed[0].data, color='black', label="st2-eve2")
+# axes[1,1].set_ylabel("Velocity (m/s)")
+
+
+
+# plt.show()

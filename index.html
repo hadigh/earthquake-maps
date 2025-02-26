@@ -38,10 +38,10 @@
 
     <script>
         // Coordinates
-        const epicenter1 = { lat: -6.9, lon: 147.4, name: "Epicenter 1" };
-        const station1 = { lat: -6.7155, lon: 146.9999, name: "Station 1" };
-        const epicenter2 = { lat: -7.2, lon: 148.1, name: "Epicenter 2" };
-        const station2 = { lat: -6.9000, lon: 147.5000, name: "Station 2" };
+        const epicenter1 = { lat: -7.0, lon: 147.4, name: "Earthquake 1 - Mag4.6" };
+        const epicenter2 = { lat: -6.9, lon: 147.4, name: "Earthquake 2 - Mag4.5" };
+        const station1 = { lat: -6.72972972972973, lon: 146.99540614879265, name: "Consulate" };
+        const station2 = { lat: -6.66666666666667, lon: 146.98741034747633, name: "UPNG" };
 
         // Initialize the first map
         var map1 = L.map('map1').setView([epicenter1.lat, epicenter1.lon], 8);
@@ -52,6 +52,7 @@
         // Add markers for the first map
         var epicenterMarker1 = L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
         var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
+        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
 
         // Initialize the second map
         var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
@@ -61,7 +62,8 @@
 
         // Add markers for the second map
         var epicenterMarker2 = L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
-        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
+        var stationMarker3 = L.marker([station1.lat, station1.lon]).addTo(map2).bindPopup(station1.name);
+        var stationMarker4 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
 
         // Click event for the first map
         stationMarker1.on('click', function() {
@@ -69,10 +71,20 @@
             loadTimeSeriesData('timeseries.csv', 'plot1', 1);
         });
 
-        // Click event for the second map
         stationMarker2.on('click', function() {
+            document.getElementById('plot1').style.display = 'block';
+            loadTimeSeriesData('timeseries.csv', 'plot1', 2);
+        });
+
+        // Click event for the second map
+        stationMarker3.on('click', function() {
             document.getElementById('plot2').style.display = 'block';
-            loadTimeSeriesData('timeseries.csv', 'plot2', 2);
+            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
+        });
+
+        stationMarker4.on('click', function() {
+            document.getElementById('plot2').style.display = 'block';
+            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
         });
 
         // Click event for the first epicenter
@@ -92,7 +104,7 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
                     let x = rows.map(row => row[0]); // Assuming first column is time
-                    let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 2 Station 2
+                    let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 1 Station 2, etc.
                     
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
