@@ -11,8 +11,12 @@ function loadTimeSeriesData(file, plotId, column) {
             // Column headers are in the first row, we use the given column index to get the correct column
             let y = rows.slice(1).map(row => {
                 let value = parseFloat(row[column]); // Parse the numeric value from the selected column
-                return isNaN(value) ? null : value; // If the value is NaN, replace with null
-            }).filter(value => value !== null); // Remove nulls
+                if (isNaN(value)) {
+                    console.warn(`Skipping non-numeric value: ${row[column]}`); // Log invalid values for debugging
+                    return null;
+                }
+                return value; // Return the parsed value
+            }).filter(value => value !== null); // Remove nulls (non-numeric values)
 
             console.log('Header:', header);  // Debugging: log header
             console.log('Time data:', x);  // Debugging: log time data
