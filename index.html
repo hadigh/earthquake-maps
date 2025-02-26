@@ -1,65 +1,157 @@
-function loadTimeSeriesData(file, plotId, column) {
-    fetch(file)
-        .then(response => response.text())
-        .then(csvText => {
-            let rows = csvText.split("\n").map(row => row.split(","));
-            
-            // First row is the header, so we skip it
-            const header = rows[0];
-            const x = rows.slice(1).map(row => row[0]); // Time values (first column, excluding header)
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Earthquake Maps</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+        }
+        #map1, #map2 {
+            width: 45%;
+            height: 500px;
+        }
+        #plot1, #plot2 {
+            width: 45%;
+            height: 400px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Earthquake Epicenter & Station Maps</h2>
+    <div class="container">
+        <div id="map1"></div>
+        <div id="map2"></div>
+    </div>
+    
+    <h2>Time-Series Plots</h2>
+    <div class="container">
+        <div id="plot1"></div>
+        <div id="plot2"></div>
+    </div>
 
-            // Column headers are in the first row, we use the given column index to get the correct column
-            let y = rows.slice(1).map(row => {
-                let value = parseFloat(row[column]); // Parse the numeric value from the selected column
-                if (isNaN(value)) {
-                    console.warn(`Skipping non-numeric value: ${row[column]}`); // Log invalid values for debugging
-                    return null;
-                }
-                return value; // Return the parsed value
-            }).filter(value => value !== null); // Remove nulls (non-numeric values)
+    <script>
+        // Coordinates
+        const epicenter1 = { lat: -7.0, lon: 147.4, name: "Earthquake 1 - Mag4.6" };
+        const epicenter2 = { lat: -6.9, lon: 147.4, name: "Earthquake 2 - Mag4.5" };
+        const station1 = { lat: -6.72972972972973, lon: 146.99540614879265, name: "Consulate" };
+        const station2 = { lat: -6.66666666666667, lon: 146.98741034747633, name: "UPNG" };
 
-            console.log('Header:', header);  // Debugging: log header
-            console.log('Time data:', x);  // Debugging: log time data
-            console.log('Velocity data:', y);  // Debugging: log velocity data
+        // Initialize the first map
+        var map1 = L.map('map1').setView([epicenter1.lat, epicenter1.lon], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map1);
 
-            // Find the maximum value and its index
-            let maxValue = Math.max(...y);
-            let maxIndex = y.indexOf(maxValue);
+        // Add markers for the first map
+        var epicenterMarker1 = L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
+        var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
+        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
 
-            // Log the time and value of the max point
-            console.log('Max value:', maxValue);
-            console.log('Max index:', maxIndex);
-            console.log('Max time:', x[maxIndex]);  // Log the time corresponding to the max value
+        // Initialize the second map
+        var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map2);
 
-            const trace = {
-                x: x,
-                y: y,
-                mode: 'lines',
-                name: 'Time-Series Data'
-            };
+        // Add markers for the second map
+        var epicenterMarker2 = L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
+        var stationMarker3 = L.marker([station1.lat, station1.lon]).addTo(map2).bindPopup(station1.name);
+        var stationMarker4 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
 
-            // Create a marker for the maximum point
-            const maxPoint = {
-                x: [x[maxIndex]],
-                y: [maxValue],
-                mode: 'markers+text',
-                marker: {
-                    color: 'red',
-                    size: 12,
-                    opacity: 0.8
-                },
-                text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
-                textposition: 'top right',
-                showlegend: false
-            };
+        // Click event for the first map
+        stationMarker1.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot1', 1);
+        });
 
-            const layout = { 
-                title: 'Corrected Time-Series Data',
-                showlegend: false
-            };
+        stationMarker2.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot1', 2);
+        });
 
-            // Plot the data with the max point
-            Plotly.newPlot(plotId, [trace, maxPoint], layout);
-        })
-        .catch(error => console.error('Error loading time-series data:', error));
-}
+        // Click event for the second map
+        stationMarker3.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
+        });
+
+        stationMarker4.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
+        });
+
+        // Function to load and plot time-series data from a CSV file
+        function loadTimeSeriesData(file, plotId, column) {
+            fetch(file)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").map(row => row.split(","));
+                    
+                    // First row is the header, so we skip it
+                    const header = rows[0];
+                    const x = rows.slice(1).map(row => row[0]); // Time values (first column, excluding header)
+
+                    // Column headers are in the first row, we use the given column index to get the correct column
+                    let y = rows.slice(1).map(row => {
+                        let value = parseFloat(row[column]); // Parse the numeric value from the selected column
+                        if (isNaN(value)) {
+                            console.warn(`Skipping non-numeric value: ${row[column]}`); // Log invalid values for debugging
+                            return null;
+                        }
+                        return value; // Return the parsed value
+                    }).filter(value => value !== null); // Remove nulls (non-numeric values)
+
+                    console.log('Header:', header);  // Debugging: log header
+                    console.log('Time data:', x);  // Debugging: log time data
+                    console.log('Velocity data:', y);  // Debugging: log velocity data
+
+                    // Find the maximum value and its index
+                    let maxValue = Math.max(...y);
+                    let maxIndex = y.indexOf(maxValue);
+
+                    // Log the time and value of the max point
+                    console.log('Max value:', maxValue);
+                    console.log('Max index:', maxIndex);
+                    console.log('Max time:', x[maxIndex]);  // Log the time corresponding to the max value
+
+                    const trace = {
+                        x: x,
+                        y: y,
+                        mode: 'lines',
+                        name: 'Time-Series Data'
+                    };
+
+                    // Create a marker for the maximum point
+                    const maxPoint = {
+                        x: [x[maxIndex]],
+                        y: [maxValue],
+                        mode: 'markers+text',
+                        marker: {
+                            color: 'red',
+                            size: 12,
+                            opacity: 0.8
+                        },
+                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
+                        textposition: 'top right',
+                        showlegend: false
+                    };
+
+                    const layout = { 
+                        title: 'Corrected Time-Series Data',
+                        showlegend: false
+                    };
+
+                    // Plot the data with the max point
+                    Plotly.newPlot(plotId, [trace, maxPoint], layout);
+                })
+                .catch(error => console.error('Error loading time-series data:', error));
+        }
+
+        // Create empty plots as placeholders
+        Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
+        Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
+    </script>
+</body>
+</html>
