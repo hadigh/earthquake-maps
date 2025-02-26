@@ -11,132 +11,25 @@
         .container {
             display: flex;
             justify-content: space-around;
-            flex-wrap: wrap;
         }
         #map1, #map2 {
             width: 45%;
-            height: 400px;
+            height: 500px;
         }
         #plot1, #plot2 {
             width: 45%;
-            height: 300px;
-        }
-        table {
-            width: 80%;
-            border-collapse: collapse;
-            margin: 20px auto;
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-            font-size: 14px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: center;
-            vertical-align: middle;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        .circle {
-            display: inline-block;
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            margin-right: 4px;
-        }
-        .purple { background-color: purple; }
-        .light-purple { background-color: #9370DB; }
-        .lighter-purple { background-color: #D8BFD8; }
-        .green { background-color: green; }
-
-        /* Proper alignment */
-        .intensity {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .alarm {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Adjust the summary table size */
-        table {
-            width: 100%;
-            margin: 0px auto;
-        }
-        .green-text {
-            color: green;
+            height: 400px;
         }
     </style>
 </head>
 <body>
-
-    <h3 style="text-align:left;">Summary Table</h3>
-
-    <table>
-        <tr>
-            <th>Earthquake ID</th>
-            <th>Magnitude</th>
-            <th>Station ID</th>
-            <th>Distance (km)</th>
-            <th>PGV (cm/s)</th>
-            <th>Intensity</th>
-            <th>Building Alarm Level</th>
-        </tr>
-        <tr>
-            <td>Event 1</td>
-            <td>4.6</td>
-            <td>Consulate</td>
-            <td>79.02</td>
-            <td>0.20</td>
-            <td class="intensity"><span class="circle purple"></span>II-III</td>
-            <td class="green-text">Green</td>
-        </tr>
-        <tr>
-            <td>Event 1</td>
-            <td>4.6</td>
-            <td>UPNG</td>
-            <td>82.21</td>
-            <td>0.12</td>
-            <td class="intensity"><span class="circle purple"></span>II-III</td>
-            <td class="green-text">Green</td>
-        </tr>
-        <tr>
-            <td>Event 2</td>
-            <td>4.5</td>
-            <td>Consulate</td>
-            <td>76.40</td>
-            <td>0.10</td>
-            <td class="intensity"><span class="circle light-purple"></span>II</td>
-            <td class="green-text">Green</td>
-        </tr>
-        <tr>
-            <td>Event 2</td>
-            <td>4.5</td>
-            <td>UPNG</td>
-            <td>78.87</td>
-            <td>0.08</td>
-            <td class="intensity"><span class="circle lighter-purple"></span>I</td>
-            <td class="green-text">Green</td>
-        </tr>
-    </table>
-
-    <h3>Earthquake Epicenter & Station Maps</h3>
+    <h2>Earthquake Epicenter & Station Maps</h2>
     <div class="container">
         <div id="map1"></div>
         <div id="map2"></div>
     </div>
     
-    <h3>Time-Series Plots</h3>
+    <h2>Time-Series Plots</h2>
     <div class="container">
         <div id="plot1"></div>
         <div id="plot2"></div>
@@ -146,31 +39,103 @@
         // Coordinates
         const epicenter1 = { lat: -7.0, lon: 147.4, name: "Earthquake 1 - Mag4.6" };
         const epicenter2 = { lat: -6.9, lon: 147.4, name: "Earthquake 2 - Mag4.5" };
-        const station1 = { lat: -6.7297, lon: 146.9954, name: "Consulate" };
-        const station2 = { lat: -6.6667, lon: 146.9874, name: "UPNG" };
+        const station1 = { lat: -6.72972972972973, lon: 146.99540614879265, name: "Consulate" };
+        const station2 = { lat: -6.66666666666667, lon: 146.98741034747633, name: "UPNG" };
 
         // Initialize the first map
         var map1 = L.map('map1').setView([epicenter1.lat, epicenter1.lon], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map1);
 
         // Add markers for the first map
-        L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
-        L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
-        L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
+        var epicenterMarker1 = L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
+        var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
+        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
 
         // Initialize the second map
         var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map2);
 
         // Add markers for the second map
-        L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
-        L.marker([station1.lat, station1.lon]).addTo(map2).bindPopup(station1.name);
-        L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
-    </script>
+        var epicenterMarker2 = L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
+        var stationMarker3 = L.marker([station1.lat, station1.lon]).addTo(map2).bindPopup(station1.name);
+        var stationMarker4 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
 
+        // Click event for the first map
+        stationMarker1.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot1', 1);
+        });
+
+        stationMarker2.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot1', 2);
+        });
+
+        // Click event for the second map
+        stationMarker3.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
+        });
+
+        stationMarker4.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
+        });
+
+        // Click event for the first epicenter
+        epicenterMarker1.on('click', function() {
+            document.getElementById('plot1').innerHTML = '';
+            Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
+        });
+
+        // Click event for the second epicenter
+        epicenterMarker2.on('click', function() {
+            document.getElementById('plot2').innerHTML = '';
+            Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
+        });
+
+        // Function to load and plot time-series data from a CSV file
+        function loadTimeSeriesData(file, plotId, column) {
+            fetch(file)
+                .then(response => response.text())
+                .then(csvText => {
+                    let rows = csvText.split("\n").map(row => row.split(","));
+                    let x = rows.map(row => row[0]); // First column is time
+                    let y = rows.map(row => row[column]); // Column for respective station data
+                    
+                    console.log('Time data:', x);
+                    console.log('Velocity data:', y);
+
+                    // Find the maximum value and its index
+                    let maxIndex = y.indexOf(Math.max(...y));
+                    let maxValue = y[maxIndex];
+
+                    console.log('Max value:', maxValue);
+                    console.log('Max index:', maxIndex);
+
+                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
+
+                    // Highlight max value with red circle and "PGV"
+                    const maxPoint = {
+                        x: [x[maxIndex]],
+                        y: [maxValue],
+                        mode: 'markers+text',
+                        marker: { color: 'red', size: 12, opacity: 0.6 },
+                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
+                        textposition: 'top right',
+                        showlegend: false
+                    };
+                    const layout = { title: 'Corrected Time-Series Data' };
+
+                    // Plot the data
+                    Plotly.newPlot(plotId, [trace, maxPoint], layout);
+                })
+                .catch(error => console.error('Error loading time-series data:', error));
+        }
+
+        // Create empty plots as placeholders
+        Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
+        Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
+    </script>
 </body>
 </html>
