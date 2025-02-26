@@ -44,4 +44,38 @@
                     console.log('Max value:', maxValue);
                     console.log('Max index:', maxIndex);
 
-                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Seri
+                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
+
+                    // Highlight max value with red circle and "PGV"
+                    const maxPoint = {
+                        x: [x[maxIndex]],
+                        y: [maxValue],
+                        mode: 'markers+text',
+                        marker: { color: 'red', size: 12, opacity: 0.6 },
+                        text: [`PGV = ${maxValue.toFixed(2)}`],
+                        textposition: 'top right',
+                        showlegend: false
+                    };
+
+                    const layout = { title: 'Time-Series Data' };
+
+                    // Plot the data
+                    Plotly.newPlot(plotId, [trace, maxPoint], layout);
+                })
+                .catch(error => console.error('Error loading time-series data:', error));
+        }
+
+        function updatePlot() {
+            let selectedStation = document.getElementById('stationDropdown').value;
+            loadTimeSeriesData('timeseries.csv', 'plot', selectedStation);
+        }
+
+        // Load initial plot (default to first station)
+        document.addEventListener("DOMContentLoaded", () => {
+            loadTimeSeriesData('timeseries.csv', 'plot', 1);
+        });
+
+    </script>
+
+</body>
+</html>
