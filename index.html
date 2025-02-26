@@ -101,7 +101,7 @@
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
                     let x = rows.map(row => row[0]); // First column is time
-                    let y = rows.map(row => row[column]); // Column for respective station data
+                    let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 1 Station 2, etc.
                     
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
@@ -114,20 +114,17 @@
                     console.log('Max index:', maxIndex);
 
                     const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
-
-                    // Highlight max value with red circle and "PGV"
                     const maxPoint = {
                         x: [x[maxIndex]],
                         y: [maxValue],
                         mode: 'markers+text',
                         marker: { color: 'red', size: 12, opacity: 0.6 },
-                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
+                        text: [PGV = ${parseFloat(maxValue).toFixed(2)}],
                         textposition: 'top right',
                         showlegend: false
                     };
                     const layout = { title: 'Corrected Time-Series Data' };
-
-                    // Plot the data
+                    
                     Plotly.newPlot(plotId, [trace, maxPoint], layout);
                 })
                 .catch(error => console.error('Error loading time-series data:', error));
