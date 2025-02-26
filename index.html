@@ -20,6 +20,61 @@
             width: 45%;
             height: 400px;
         }
+        table {
+            width: 80%;
+            border-collapse: collapse;
+            margin: 20px auto;
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .circle {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 4px;
+        }
+        .purple { background-color: purple; }
+        .light-purple { background-color: #9370DB; }
+        .lighter-purple { background-color: #D8BFD8; }
+        .green { background-color: green; }
+
+        /* Proper alignment */
+        .intensity {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .alarm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Adjust the summary table size */
+        table {
+            width: 100%;
+            margin: 0px auto;
+        }
+        .green-text {
+            color: green;
+        }
     </style>
 </head>
 <body>
@@ -34,6 +89,56 @@
         <div id="plot1"></div>
         <div id="plot2"></div>
     </div>
+
+    <h3 style="text-align:left;">Summary Table</h3>
+
+    <table>
+        <tr>
+            <th>Earthquake ID</th>
+            <th>Magnitude</th>
+            <th>Station ID</th>
+            <th>Distance (km)</th>
+            <th>PGV (cm/s)</th>
+            <th>Intensity</th>
+            <th>Alarm</th>
+        </tr>
+        <tr>
+            <td>Event 1</td>
+            <td>4.6</td>
+            <td>Consulate</td>
+            <td>79.02</td>
+            <td>0.20</td>
+            <td class="intensity"><span class="circle purple"></span>II-III</td>
+            <td class="green-text">Green</td>
+        </tr>
+        <tr>
+            <td>Event 1</td>
+            <td>4.6</td>
+            <td>UPNG</td>
+            <td>82.21</td>
+            <td>0.12</td>
+            <td class="intensity"><span class="circle purple"></span>II-III</td>
+            <td class="green-text">Green</td>
+        </tr>
+        <tr>
+            <td>Event 2</td>
+            <td>4.5</td>
+            <td>Consulate</td>
+            <td>76.40</td>
+            <td>0.10</td>
+            <td class="intensity"><span class="circle light-purple"></span>II</td>
+            <td class="green-text">Green</td>
+        </tr>
+        <tr>
+            <td>Event 2</td>
+            <td>4.5</td>
+            <td>UPNG</td>
+            <td>78.87</td>
+            <td>0.08</td>
+            <td class="intensity"><span class="circle lighter-purple"></span>I</td>
+            <td class="green-text">Green</td>
+        </tr>
+    </table>
 
     <script>
         // Coordinates
