@@ -22,9 +22,9 @@
             height: 300px;
         }
         table {
-            width: 60%;
+            width: 80%;
             border-collapse: collapse;
-            margin: 10px auto;
+            margin: 20px auto;
             background-color: white;
             border-radius: 8px;
             overflow: hidden;
@@ -54,20 +54,33 @@
         .purple { background-color: purple; }
         .light-purple { background-color: #9370DB; }
         .lighter-purple { background-color: #D8BFD8; }
-        .green-circle { background-color: green; }
+        .green { background-color: green; }
 
         /* Proper alignment */
-        .intensity, .alarm {
+        .intensity {
             display: flex;
             align-items: center;
             justify-content: center;
-            white-space: nowrap;
+        }
+        .alarm {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Adjust the summary table size */
+        table {
+            width: 100%;
+            margin: 0px auto;
+        }
+        .green-text {
+            color: green;
         }
     </style>
 </head>
 <body>
 
-    <h3 style="text-align:center;">Summary Table</h3>
+    <h3 style="text-align:left;">Summary Table</h3>
 
     <table>
         <tr>
@@ -86,7 +99,7 @@
             <td>79.02</td>
             <td>0.20</td>
             <td class="intensity"><span class="circle purple"></span>II-III</td>
-            <td class="alarm"><span class="circle green-circle"></span><span>Green</span></td>
+            <td class="green-text">Green</td>
         </tr>
         <tr>
             <td>Event 1</td>
@@ -95,7 +108,7 @@
             <td>82.21</td>
             <td>0.12</td>
             <td class="intensity"><span class="circle purple"></span>II-III</td>
-            <td class="alarm"><span class="circle green-circle"></span><span>Green</span></td>
+            <td class="green-text">Green</td>
         </tr>
         <tr>
             <td>Event 2</td>
@@ -104,7 +117,7 @@
             <td>76.40</td>
             <td>0.10</td>
             <td class="intensity"><span class="circle light-purple"></span>II</td>
-            <td class="alarm"><span class="circle green-circle"></span><span>Green</span></td>
+            <td class="green-text">Green</td>
         </tr>
         <tr>
             <td>Event 2</td>
@@ -113,7 +126,7 @@
             <td>78.87</td>
             <td>0.08</td>
             <td class="intensity"><span class="circle lighter-purple"></span>I</td>
-            <td class="alarm"><span class="circle green-circle"></span><span>Green</span></td>
+            <td class="green-text">Green</td>
         </tr>
     </table>
 
