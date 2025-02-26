@@ -110,6 +110,9 @@
                     let maxIndex = y.indexOf(Math.max(...y));
                     let maxValue = y[maxIndex];
 
+                    console.log('Max value:', maxValue);
+                    console.log('Max index:', maxIndex);
+
                     const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
                     const maxPoint = {
                         x: [x[maxIndex]],
