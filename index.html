@@ -124,36 +124,7 @@
                         return;
                     }
 
-                    // Find the maximum value and its index
-                    let maxIndex = y.indexOf(Math.max(...y));
-                    let maxValue = y[maxIndex];
-
-                    console.log('Max value:', maxValue);
-                    console.log('Max index:', maxIndex);
-
+                    // Plot the time-series data even if there's no PGV (max value highlight)
                     const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
 
-                    // Highlight max value with red circle and "PGV"
-                    const maxPoint = {
-                        x: [x[maxIndex]],
-                        y: [maxValue],
-                        mode: 'markers+text',
-                        marker: { color: 'red', size: 12, opacity: 0.6 },
-                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
-                        textposition: 'top right',
-                        showlegend: false
-                    };
-                    const layout = { title: 'Corrected Time-Series Data' };
-
-                    // Plot the data
-                    Plotly.newPlot(plotId, [trace, maxPoint], layout);
-                })
-                .catch(error => console.error('Error loading time-series data:', error));
-        }
-
-        // Create empty plots as placeholders
-        Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
-        Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
-    </script>
-</body>
-</html>
+                    // Find the maximum value an
