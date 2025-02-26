@@ -54,7 +54,8 @@
         var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
 
         // Initialize the second map
-        var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon],('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map2);
 
@@ -105,10 +106,22 @@
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
 
+                    // Find the maximum value and its index
+                    let maxIndex = y.indexOf(Math.max(...y));
+                    let maxValue = y[maxIndex];
+
                     const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
+                    const maxPoint = {
+                        x: [x[maxIndex]],
+                        y: [maxValue],
+                        mode: 'markers+text',
+                        marker: { color: 'red', size: 12, opacity: 0.6 },
+                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
+                        textposition: 'top right'
+                    };
                     const layout = { title: 'Corrected Time-Series Data' };
                     
-                    Plotly.newPlot(plotId, [trace], layout);
+                    Plotly.newPlot(plotId, [trace, maxPoint], layout);
                 })
                 .catch(error => console.error('Error loading time-series data:', error));
         }
@@ -119,6 +132,3 @@
     </script>
 </body>
 </html>
-
-This code ensures that the time-series plot appears directly under the map where the station was clicked. Let me know if you need any further adjustments or have any other questions!
-AI-generated content may be incorrect
