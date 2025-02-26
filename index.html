@@ -100,7 +100,7 @@
                 .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
-                    
+
                     // First row is header, map to object where keys are column names
                     let headers = rows[0];
                     let data = rows.slice(1).map(row => {
@@ -113,7 +113,13 @@
 
                     // Extract time and the specific column for the requested station/event
                     let x = data.map(row => row['time']); // Time column
-                    let y = data.map(row => parseFloat(row[columnName])); // Station/Event column
+                    let y = data.map(row => {
+                        let value = parseFloat(row[columnName]);
+                        if (isNaN(value)) {
+                            console.error(`Invalid value found for ${columnName} at time ${row['time']}: ${row[columnName]}`);
+                        }
+                        return value; // Ensure this is a number
+                    });
 
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
