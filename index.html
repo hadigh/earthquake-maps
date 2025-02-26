@@ -19,7 +19,6 @@
         #plot1, #plot2 {
             width: 45%;
             height: 400px;
-            display: none; /* Hide plots initially */
         }
     </style>
 </head>
@@ -67,34 +66,30 @@
 
         // Click event for the first map
         stationMarker1.on('click', function() {
-            document.getElementById('plot1').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot1', 1);
         });
 
         stationMarker2.on('click', function() {
-            document.getElementById('plot1').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot1', 2);
         });
 
         // Click event for the second map
         stationMarker3.on('click', function() {
-            document.getElementById('plot2').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot2', 3);
         });
 
         stationMarker4.on('click', function() {
-            document.getElementById('plot2').style.display = 'block';
             loadTimeSeriesData('timeseries.csv', 'plot2', 4);
         });
 
         // Click event for the first epicenter
         epicenterMarker1.on('click', function() {
-            document.getElementById('plot1').style.display = 'none';
+            document.getElementById('plot1').innerHTML = '';
         });
 
         // Click event for the second epicenter
         epicenterMarker2.on('click', function() {
-            document.getElementById('plot2').style.display = 'none';
+            document.getElementById('plot2').innerHTML = '';
         });
 
         // Function to load and plot time-series data from a CSV file
@@ -103,7 +98,7 @@
                 .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
-                    let x = rows.map(row => row[0]); // Assuming first column is time
+                    let x = rows.map(row => row[0]); // First column is time
                     let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 1 Station 2, etc.
                     
                     console.log('Time data:', x);
