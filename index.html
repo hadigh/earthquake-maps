@@ -3,9 +3,18 @@ function loadTimeSeriesData(file, plotId, column) {
         .then(response => response.text())
         .then(csvText => {
             let rows = csvText.split("\n").map(row => row.split(","));
-            let x = rows.map(row => row[0]); // First column is time
-            let y = rows.map(row => parseFloat(row[column])); // Column for respective station data
+            
+            // First row is the header, so we skip it
+            const header = rows[0];
+            const x = rows.slice(1).map(row => row[0]); // Time values (first column, excluding header)
 
+            // Column headers are in the first row, we use the given column index to get the correct column
+            let y = rows.slice(1).map(row => {
+                let value = parseFloat(row[column]); // Parse the numeric value from the selected column
+                return isNaN(value) ? null : value; // If the value is NaN, replace with null
+            }).filter(value => value !== null); // Remove nulls
+
+            console.log('Header:', header);  // Debugging: log header
             console.log('Time data:', x);  // Debugging: log time data
             console.log('Velocity data:', y);  // Debugging: log velocity data
 
