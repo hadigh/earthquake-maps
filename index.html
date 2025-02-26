@@ -31,33 +31,40 @@
     
     <h2>Time-Series Plots</h2>
     <div class="container">
-        <div id="plot1">Loading Plot 1...</div>
-        <div id="plot2">Loading Plot 2...</div>
+        <div id="plot1"></div>
+        <div id="plot2"></div>
     </div>
 
     <script>
-        // Coordinates for demonstration
+        // Coordinates
         const epicenter1 = { lat: -7.0, lon: 147.4, name: "Earthquake 1 - Mag4.6" };
         const epicenter2 = { lat: -6.9, lon: 147.4, name: "Earthquake 2 - Mag4.5" };
         const station1 = { lat: -6.72972972972973, lon: 146.99540614879265, name: "Consulate" };
         const station2 = { lat: -6.66666666666667, lon: 146.98741034747633, name: "UPNG" };
 
-        // Initialize the maps
+        // Initialize the first map
         var map1 = L.map('map1').setView([epicenter1.lat, epicenter1.lon], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map1);
 
+        // Add markers for the first map
+        var epicenterMarker1 = L.circleMarker([epicenter1.lat, epicenter1.lon], { color: 'red', radius: 10 }).addTo(map1).bindPopup(epicenter1.name).openPopup();
+        var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
+        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
+
+        // Initialize the second map
         var map2 = L.map('map2').setView([epicenter2.lat, epicenter2.lon], 8);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map2);
 
-        // Markers for stations
-        var stationMarker1 = L.marker([station1.lat, station1.lon]).addTo(map1).bindPopup(station1.name);
-        var stationMarker2 = L.marker([station2.lat, station2.lon]).addTo(map1).bindPopup(station2.name);
+        // Add markers for the second map
+        var epicenterMarker2 = L.circleMarker([epicenter2.lat, epicenter2.lon], { color: 'red', radius: 10 }).addTo(map2).bindPopup(epicenter2.name).openPopup();
+        var stationMarker3 = L.marker([station1.lat, station1.lon]).addTo(map2).bindPopup(station1.name);
+        var stationMarker4 = L.marker([station2.lat, station2.lon]).addTo(map2).bindPopup(station2.name);
 
-        // Plot Time-Series Data on Click
+        // Click event for the first map
         stationMarker1.on('click', function() {
             loadTimeSeriesData('timeseries.csv', 'plot1', 1);
         });
@@ -66,71 +73,69 @@
             loadTimeSeriesData('timeseries.csv', 'plot1', 2);
         });
 
+        // Click event for the second map
+        stationMarker3.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
+        });
+
+        stationMarker4.on('click', function() {
+            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
+        });
+
+        // Click event for the first epicenter
+        epicenterMarker1.on('click', function() {
+            document.getElementById('plot1').innerHTML = '';
+            Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
+        });
+
+        // Click event for the second epicenter
+        epicenterMarker2.on('click', function() {
+            document.getElementById('plot2').innerHTML = '';
+            Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
+        });
+
         // Function to load and plot time-series data from a CSV file
         function loadTimeSeriesData(file, plotId, column) {
             fetch(file)
                 .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
+                    let x = rows.map(row => row[0]); // First column is time
+                    let y = rows.map(row => row[column]); // Column for respective station data
                     
-                    // First row is the header, skip it
-                    const header = rows[0];
-                    const x = rows.slice(1).map(row => row[0]); // Time values (first column)
-
-                    let y = rows.slice(1).map(row => {
-                        let value = parseFloat(row[column]);
-                        if (isNaN(value)) {
-                            console.warn(`Skipping non-numeric value: ${row[column]}`);
-                            return null;
-                        }
-                        return value;
-                    }).filter(value => value !== null); // Remove nulls
-
-                    console.log('Header:', header);
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
 
-                    let maxValue = Math.max(...y);
-                    let maxIndex = y.indexOf(maxValue);
+                    // Find the maximum value and its index
+                    let maxIndex = y.indexOf(Math.max(...y));
+                    let maxValue = y[maxIndex];
 
-                    // Log maximum value and corresponding time
                     console.log('Max value:', maxValue);
-                    console.log('Max time:', x[maxIndex]);
+                    console.log('Max index:', maxIndex);
 
-                    const trace = {
-                        x: x,
-                        y: y,
-                        mode: 'lines',
-                        name: 'Time-Series Data'
-                    };
+                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
 
+                    // Highlight max value with red circle and "PGV"
                     const maxPoint = {
                         x: [x[maxIndex]],
                         y: [maxValue],
                         mode: 'markers+text',
-                        marker: {
-                            color: 'red',
-                            size: 12,
-                            opacity: 0.8
-                        },
+                        marker: { color: 'red', size: 12, opacity: 0.6 },
                         text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
                         textposition: 'top right',
                         showlegend: false
                     };
+                    const layout = { title: 'Corrected Time-Series Data' };
 
-                    const layout = { 
-                        title: 'Corrected Time-Series Data',
-                        showlegend: false
-                    };
-
-                    // Plot with the max point highlighted
+                    // Plot the data
                     Plotly.newPlot(plotId, [trace, maxPoint], layout);
                 })
-                .catch(error => {
-                    console.error('Error loading time-series data:', error);
-                    document.getElementById(plotId).innerHTML = "Failed to load data.";
-                });
+                .catch(error => console.error('Error loading time-series data:', error));
         }
+
+        // Create empty plots as placeholders
+        Plotly.newPlot('plot1', [], { title: 'Time-Series Data' });
+        Plotly.newPlot('plot2', [], { title: 'Time-Series Data' });
     </script>
 </body>
 </html>
