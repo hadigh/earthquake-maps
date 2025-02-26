@@ -66,20 +66,20 @@
 
         // Click event for the first map
         stationMarker1.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot1', 1);
+            loadTimeSeriesData('timeseries.csv', 'plot1', 'Event1_Station1');
         });
 
         stationMarker2.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot1', 2);
+            loadTimeSeriesData('timeseries.csv', 'plot1', 'Event1_Station2');
         });
 
         // Click event for the second map
         stationMarker3.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
+            loadTimeSeriesData('timeseries.csv', 'plot2', 'Event2_Station1');
         });
 
         stationMarker4.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
+            loadTimeSeriesData('timeseries.csv', 'plot2', 'Event2_Station2');
         });
 
         // Click event for the first epicenter
@@ -95,13 +95,25 @@
         });
 
         // Function to load and plot time-series data from a CSV file
-        function loadTimeSeriesData(file, plotId, column) {
+        function loadTimeSeriesData(file, plotId, columnName) {
             fetch(file)
                 .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
-                    let x = rows.map(row => row[0]); // First column is time
-                    let y = rows.map(row => parseFloat(row[column])); // Convert column to float
+                    
+                    // First row is header, map to object where keys are column names
+                    let headers = rows[0];
+                    let data = rows.slice(1).map(row => {
+                        let rowData = {};
+                        headers.forEach((header, index) => {
+                            rowData[header] = row[index];
+                        });
+                        return rowData;
+                    });
+
+                    // Extract time and the specific column for the requested station/event
+                    let x = data.map(row => row['Time']); // Time column
+                    let y = data.map(row => parseFloat(row[columnName])); // Station/Event column
 
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
