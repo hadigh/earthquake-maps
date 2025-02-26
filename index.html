@@ -66,20 +66,20 @@
 
         // Click event for the first map
         stationMarker1.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot1', 'event1_station1');
+            loadTimeSeriesData('timeseries.csv', 'plot1', 1);
         });
 
         stationMarker2.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot1', 'event1_station2');
+            loadTimeSeriesData('timeseries.csv', 'plot1', 2);
         });
 
         // Click event for the second map
         stationMarker3.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot2', 'event2_station1');
+            loadTimeSeriesData('timeseries.csv', 'plot2', 3);
         });
 
         stationMarker4.on('click', function() {
-            loadTimeSeriesData('timeseries.csv', 'plot2', 'event2_station2');
+            loadTimeSeriesData('timeseries.csv', 'plot2', 4);
         });
 
         // Click event for the first epicenter
@@ -95,71 +95,39 @@
         });
 
         // Function to load and plot time-series data from a CSV file
-        function loadTimeSeriesData(file, plotId, columnName) {
+        function loadTimeSeriesData(file, plotId, column) {
             fetch(file)
                 .then(response => response.text())
                 .then(csvText => {
                     let rows = csvText.split("\n").map(row => row.split(","));
-
-                    // First row is header, map to object where keys are column names
-                    let headers = rows[0];
-                    let data = rows.slice(1).map(row => {
-                        let rowData = {};
-                        headers.forEach((header, index) => {
-                            rowData[header] = row[index];
-                        });
-                        return rowData;
-                    });
-
-                    // Extract time and the specific column for the requested station/event
-                    let x = data.map(row => row['time']); // Time column
-                    let y = data.map(row => {
-                        let value = parseFloat(row[columnName]);
-                        if (isNaN(value)) {
-                            console.error(`Invalid value found for ${columnName} at time ${row['time']}: ${row[columnName]}`);
-                        }
-                        return value; // Ensure this is a number
-                    });
-
+                    let x = rows.map(row => row[0]); // First column is time
+                    let y = rows.map(row => row[column]); // Column 1 for Event 1 Station 1, Column 2 for Event 1 Station 2, etc.
+                    
                     console.log('Time data:', x);
                     console.log('Velocity data:', y);
 
-                    // Check if the y array contains valid numbers
-                    if (y.some(isNaN)) {
-                        console.error('Invalid data found in y array:', y);
-                        return;
-                    }
-
-                    // Plot the time-series data even if there's no PGV (max value highlight)
-                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
-
-                    // Find the maximum value and its index for PGV
+                    // Find the maximum value and its index
                     let maxIndex = y.indexOf(Math.max(...y));
                     let maxValue = y[maxIndex];
 
                     console.log('Max value:', maxValue);
                     console.log('Max index:', maxIndex);
 
-                    // Highlight max value with red circle and "PGV"
+                    const trace = { x: x, y: y, mode: 'lines', name: 'Time-Series Data' };
                     const maxPoint = {
                         x: [x[maxIndex]],
                         y: [maxValue],
                         mode: 'markers+text',
                         marker: { color: 'red', size: 12, opacity: 0.6 },
-                        text: [`PGV = ${parseFloat(maxValue).toFixed(2)}`],
+                        text: [PGV = ${parseFloat(maxValue).toFixed(2)}],
                         textposition: 'top right',
                         showlegend: false
                     };
-
                     const layout = { title: 'Corrected Time-Series Data' };
-
-                    // Plot the data, with or without PGV marker
+                    
                     Plotly.newPlot(plotId, [trace, maxPoint], layout);
                 })
-                .catch(error => {
-                    console.error('Error loading time-series data:', error);
-                    Plotly.newPlot(plotId, [], { title: 'Time-Series Data' });
-                });
+                .catch(error => console.error('Error loading time-series data:', error));
         }
 
         // Create empty plots as placeholders
